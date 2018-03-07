@@ -1,9 +1,21 @@
-import { useStrict, action, observable, runInAction } from "mobx";
-import { asyncAction } from "mobx-utils";
-useStrict(true);
+import {
+  configure,
+  action,
+  observable,
+  runInAction,
+  flow,
+  decorate
+} from "mobx";
+
+// this is now `flow` from mobx
+// import { asyncAction } from "mobx-utils";
+
+// removed as of MobX 4
+// useStrict(true);
+configure({ enforceActions: true });
 
 class WeatherStore {
-  @observable weatherData = {};
+  weatherData = {};
 
   loadWeather = city => {
     fetch(
@@ -15,7 +27,6 @@ class WeatherStore {
       });
   };
 
-  @action
   setWeatherData = data => {
     this.weatherData = data;
   };
@@ -43,13 +54,19 @@ class WeatherStore {
     });
   };
 
-  loadWeatherGenerator = asyncAction(function*(city) {
+  loadWeatherGenerator = function*(city) {
     const response = yield fetch(
       `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
     );
     const data = yield response.json();
     this.weatherData = data;
-  });
+  };
 }
+
+decorate(WeatherStore, {
+  weatherData: observable,
+  setWeatherData: action,
+  loadWeatherGenerator: flow
+});
 
 export default new WeatherStore();

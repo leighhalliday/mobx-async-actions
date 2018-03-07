@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { observer, inject } from "mobx-react";
 import JSONPretty from "react-json-pretty";
 
-@inject("WeatherStore")
-@observer
 class App extends Component {
   componentDidMount() {
     this.props.WeatherStore.loadWeather("Toronto, ON, Canada");
@@ -21,4 +19,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default inject("WeatherStore")(observer(App));

@@ -4,6 +4,8 @@ I've always loved MobX because of it's lack of boilerplate in comparison to Redu
 
 In Redux you'd reach for something like [thunk](https://github.com/gaearon/redux-thunk), but in MobX there are a few easy ways you can deal with asynchronous code.
 
+This tutorial explains how to run Async code in both MobX 3 and MobX 4 which at the time of writing is in a Beta release.
+
 ## The Incorrect Way
 
 The funny thing about MobX is that the code below will probably work, but isn't recommended. That's because action functions are the only place you are supposed to modify the state. Here we are modifying it in the function which gets called on successful promise resolution, not in the action itself.
@@ -22,6 +24,17 @@ loadWeather = city => {
 ```
 
 ## Avoid the Incorrect Way
+
+**In MobX 4**:
+
+By importing the `configure` function and telling it to enforceActions, you can have MobX throw an error if you happen to modify the state outside of an action.
+
+```js
+import { configure } from "mobx";
+configure({ enforceActions: true });
+```
+
+**In MobX 3**:
 
 By importing the `useStrict` function, you can have MobX throw an error if you happen to modify the state outside of an action.
 
@@ -92,16 +105,18 @@ loadWeatherRunInAsync = async city => {
 
 ## Async and Generators
 
-There is a function called `asyncAction` in the [mobx-utils](https://www.npmjs.com/package/mobx-utils) package that lets you solve the "async issue" in a slightly different way.
+As of MobX 4 there is a function called `flow` part of MobX Core, while in MobX 3 there is a function called `asyncAction` in the [mobx-utils](https://www.npmjs.com/package/mobx-utils) package that lets you solve the "async issue" in a slightly different way.
 
-The `*` is important as it denotes the function as a [generator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), whereas [yield](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield) gives control to the iterator. We'll pass our generator function to the `asyncAction` function, and every place there is supposed to be `await` in a typical Async/Await scenario, we'll use the `yield` keyword instead.
+The `*` is important as it denotes the function as a [generator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), whereas [yield](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield) gives control to the iterator. We'll pass our generator function to the `flow` (or `asyncAction`) function, and every place there is supposed to be `await` in a typical Async/Await scenario, we'll use the `yield` keyword instead.
 
 ```js
-import { asyncAction } from "mobx-utils";
+import { flow } from "mobx";
+// MobX 3
+// import {asyncAction} from "mobx-utils"
 
 // ...
 
-loadWeatherGenerator = asyncAction(function*(city) {
+loadWeatherGenerator = flow(function*(city) {
   const response = yield fetch(
     `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
   );
@@ -113,7 +128,7 @@ loadWeatherGenerator = asyncAction(function*(city) {
 You'll notice above I didn't use an arrow function... which is because I don't think there is a way to do generator functions with arrow functions... I also had a hard time with Babel, decorators, and generator functions. The code below **should** work, but I wasn't able to get it working without a syntax error.
 
 ```js
-@asyncAction
+@flow
 *loadWeatherGenerator(city) {
   const response = yield fetch(
     `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
@@ -129,6 +144,6 @@ If writing `runInAction` code annoys you and brings you back to the thunk/redux 
 
 ## Conclusion
 
-Visit the [MobX documentation](https://mobx.js.org/best/actions.html#writing-asynchronous-actions) for the ultimate guide to writing async code in MobX. In this article we covered the incorrect way, the `runInAction` approach and the `asyncAction` with generator approach.
+Visit the [MobX documentation](https://mobx.js.org/best/actions.html#writing-asynchronous-actions) for the ultimate guide to writing async code in MobX. In this article we covered the incorrect way, the `runInAction` approach and the `flow` (or `asyncAction`) with generator function approach.
 
 Alternatively you can use a Babel plugin to automatically wrap Async/Await code in `runInAction` functions for you.
