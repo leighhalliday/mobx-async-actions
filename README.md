@@ -4,7 +4,7 @@ I've always loved MobX because of it's lack of boilerplate in comparison to Redu
 
 In Redux you'd reach for something like [thunk](https://github.com/gaearon/redux-thunk), but in MobX there are a few easy ways you can deal with asynchronous code.
 
-This tutorial explains how to run Async code in both MobX 3 and MobX 4 which at the time of writing is in a Beta release.
+This tutorial explains how to run Async code in both MobX 3 and MobX 4.
 
 ## The Incorrect Way
 
