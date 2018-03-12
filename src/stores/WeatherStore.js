@@ -1,10 +1,10 @@
 import {
-  configure,
+  configure, // set some global mobx config settings
   action,
   observable,
-  runInAction,
-  flow,
-  decorate
+  runInAction, // inlining an action within another function
+  flow, // using generators and yield to run in action
+  decorate // not needing to use decorators to decorate functions
 } from "mobx";
 
 // this is now `flow` from mobx
@@ -23,15 +23,15 @@ class WeatherStore {
     )
       .then(response => response.json())
       .then(data => {
-        this.setWeatherData(data);
+        this.setWeather(data);
       });
   };
 
-  setWeatherData = data => {
+  setWeather = data => {
     this.weatherData = data;
   };
 
-  loadWeatherRunInThen = city => {
+  loadWeatherInline = city => {
     fetch(
       `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
     )
@@ -43,7 +43,7 @@ class WeatherStore {
       });
   };
 
-  loadWeatherRunInAsync = async city => {
+  loadWeatherAsync = async city => {
     const response = await fetch(
       `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
     );
@@ -54,19 +54,18 @@ class WeatherStore {
     });
   };
 
-  loadWeatherGenerator = function*(city) {
+  loadWeatherGenerator = flow(function*(city) {
     const response = yield fetch(
       `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
     );
     const data = yield response.json();
     this.weatherData = data;
-  };
+  });
 }
 
 decorate(WeatherStore, {
   weatherData: observable,
-  setWeatherData: action,
-  loadWeatherGenerator: flow
+  setWeather: action
 });
 
 export default new WeatherStore();

@@ -4,9 +4,6 @@ import JSONPretty from "react-json-pretty";
 
 class App extends Component {
   componentDidMount() {
-    this.props.WeatherStore.loadWeather("Toronto, ON, Canada");
-    this.props.WeatherStore.loadWeatherRunInThen("Toronto, ON, Canada");
-    this.props.WeatherStore.loadWeatherRunInAsync("Toronto, ON, Canada");
     this.props.WeatherStore.loadWeatherGenerator("Toronto, ON, Canada");
   }
 

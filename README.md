@@ -125,18 +125,7 @@ loadWeatherGenerator = flow(function*(city) {
 });
 ```
 
-You'll notice above I didn't use an arrow function... which is because I don't think there is a way to do generator functions with arrow functions... I also had a hard time with Babel, decorators, and generator functions. The code below **should** work, but I wasn't able to get it working without a syntax error.
-
-```js
-@flow
-*loadWeatherGenerator(city) {
-  const response = yield fetch(
-    `https://abnormal-weather-api.herokuapp.com/cities/search?city=${city}`
-  );
-  const data = yield response.json();
-  this.weatherData = data;
-}
-```
+You'll notice above I didn't use an arrow function... which is because I don't think there is a way to do generator functions with arrow functions, at least in Babel. This should be possible in Typescript.
 
 ## A Babel Plugin
 
